@@ -1,11 +1,14 @@
-import pandas as pd
-import numpy as np
 '''import tensorflow as tf
 
 from tensorflow import feature_column
 from tensorflow.keras import layers'''
 from sklearn.model_selection import train_test_split 
 from sklearn.linear_model import LogisticRegression
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from keras import Sequential
+from keras.layers import Dense
 
 import pickle
 
@@ -21,7 +24,33 @@ def data_split(data, ratio):
 
 if __name__=="__main__":
   #reading the data from the csv file
-  df=pd.read_csv('data.csv')
+  dataset = pd.read_csv('data1.csv')  
+
+  x= dataset.iloc[:,0:5]
+  y= dataset.iloc[:,5]
+
+  #Train test splitting
+  X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3)
+
+  #Starting our model
+  classifier = Sequential()
+  #First Hidden Layer
+  classifier.add(Dense(4, activation='relu', kernel_initializer='random_normal', input_dim=5))
+  #Second  Hidden Layer
+  classifier.add(Dense(4, activation='relu', kernel_initializer='random_normal'))
+  #Output Layer
+  classifier.add(Dense(1, activation='sigmoid', kernel_initializer='random_normal'))
+  #Compiling the neural network
+  classifier.compile(optimizer ='adam',loss='binary_crossentropy', metrics =['accuracy'])
+  classifier.fit(X_train,y_train, batch_size=10, epochs=100)
+
+  #Dumping model in a file
+  file1 = open('model_neural.pkl', 'wb')
+  pickle.dump(classifier, file1)
+
+
+
+  '''df=pd.read_csv('data.csv')
 
 
   #getting splitted data from function
@@ -39,7 +68,7 @@ if __name__=="__main__":
 
   file1 = open('model.pkl', 'wb')
   pickle.dump(clf, file1)
-
+'''
  
 
 
@@ -62,8 +91,6 @@ if __name__=="__main__":
 '''
   #example_batch = next(iter(train_ds))[0]
 
-  # A utility method to create a feature column
-  # and to transform a batch of data
   #def demo(feature_column):
   #  feature_layer = layers.DenseFeatures(feature_column)
   #  print(feature_layer(example_batch).numpy())
@@ -74,7 +101,6 @@ if __name__=="__main__":
 
   feature_columns = []
 
-  # numeric cols
   for header in ['fever', 'bodypain', 'runnynose']:
     feature_columns.append(feature_column.numeric_column(header))
 
